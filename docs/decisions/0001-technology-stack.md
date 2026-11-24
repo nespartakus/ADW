@@ -11,8 +11,10 @@ archivos estáticos.
 
 ## Decisiones
 
-- **Java 21 + Spring Boot 3 + Maven** — LTS vigente, ecosistema maduro, alineado
-  con LangChain4j.
+- **Java 21 + Spring Boot 4.1 + Maven** — el spec mencionaba "3.x o línea estable
+  compatible"; Spring Boot 3.5 quedó EOL (junio 2026), así que se usa la línea
+  estable recomendada en producción (4.1.3), que es la que sigue LangChain4j
+  1.24.0. Spring Framework 7 requiere JDK 17+; Java 21 es compatible.
 - **LangChain4j** como framework de integración LLM (no Google ADK), por su
   integración directa con Spring Boot y soporte de proveedores, memoria, RAG,
   herramientas y MCP.

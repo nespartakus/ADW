@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: adw-backend
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/adw}
+    username: ${DB_USERNAME:adw}
+    password: ${DB_PASSWORD:adw}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+server:
+  port: 8080

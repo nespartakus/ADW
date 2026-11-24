@@ -11,7 +11,7 @@ verificables.
 
 ## Stack
 
-- **Backend:** Java 21, Spring Boot 3, Maven, LangChain4j, Spring Data JPA, PostgreSQL + pgvector, Flyway
+- **Backend:** Java 21, Spring Boot 4.1, Maven, LangChain4j, Spring Data JPA, PostgreSQL + pgvector, Flyway
 - **Frontend:** React, TypeScript (strict), Vite, Tailwind CSS, shadcn/ui, React Router, TanStack Query
 - **Infraestructura local:** Docker Compose
 
