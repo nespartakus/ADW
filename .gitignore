@@ -1,0 +1,40 @@
+# Java / Maven
+target/
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# Node / frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vite/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local runtime data (documents, exports) — keep folders via .gitkeep
+local-data/documents/*
+local-data/exports/*
+!local-data/documents/.gitkeep
+!local-data/exports/.gitkeep
+
+# Agent-local state
+.atl/
+
+# Test scratch
+*.log
