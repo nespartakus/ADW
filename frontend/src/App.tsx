@@ -2,6 +2,9 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { ComingSoonPage } from '@/components/ComingSoonPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
+import { DiagnosticDetailPage } from '@/features/diagnostics/DiagnosticDetailPage'
+import { DiagnosticsPage } from '@/features/diagnostics/DiagnosticsPage'
+import { VehiclesPage } from '@/features/vehicles/VehiclesPage'
 
 export default function App() {
   return (
@@ -9,8 +12,9 @@ export default function App() {
       <Route element={<AppLayout />}>
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="diagnostics" element={<ComingSoonPage title="Diagnósticos" />} />
-        <Route path="vehicles" element={<ComingSoonPage title="Vehículos" />} />
+        <Route path="diagnostics" element={<DiagnosticsPage />} />
+        <Route path="diagnostics/:id" element={<DiagnosticDetailPage />} />
+        <Route path="vehicles" element={<VehiclesPage />} />
         <Route path="knowledge" element={<ComingSoonPage title="Biblioteca técnica" />} />
         <Route path="devices" element={<ComingSoonPage title="Dispositivos" />} />
         <Route path="reports" element={<ComingSoonPage title="Informes" />} />
