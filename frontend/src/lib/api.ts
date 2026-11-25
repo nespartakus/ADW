@@ -64,6 +64,81 @@ export interface DiagnosticSessionInput {
   operatingConditions?: string
 }
 
+export interface LlmSettings {
+  provider: string | null
+  model: string | null
+  baseUrl: string | null
+  enabled: boolean
+  hasApiKey: boolean
+}
+
+export interface LlmSettingsInput {
+  provider: string
+  model: string
+  baseUrl?: string
+  enabled: boolean
+  apiKey?: string
+}
+
+export interface TestConnectionResult {
+  ok: boolean
+  provider: string | null
+  message: string
+}
+
+export interface DiagnosticMessage {
+  id: string
+  role: 'USER' | 'ASSISTANT' | 'TOOL' | 'SYSTEM'
+  content: string | null
+  structuredPayload: DiagnosticAnalysis | null
+  createdAt: string
+}
+
+export interface DiagnosticAnalysis {
+  summary: string
+  vehicleContext: { vehicleId: string | null; configurationWarnings: string[] } | null
+  knownFacts: { statement: string; origin: string; sourceId: string | null }[]
+  missingInformation: { question: string; reason: string | null }[]
+  dtcs: { code: string; status: string; description: string | null; sourceIds: string[] }[]
+  hypotheses: Hypothesis[]
+  testPlan: TestPlanItem[]
+  safetyWarnings: string[]
+  sources: Source[]
+  conclusionStatus: string
+}
+
+export interface Hypothesis {
+  id: string
+  title: string
+  confidence: 'LOW' | 'MEDIUM' | 'HIGH'
+  supportingEvidence: string[]
+  contradictingEvidence: string[]
+  unknowns: string[]
+  status: string
+}
+
+export interface TestPlanItem {
+  id: string
+  title: string
+  purpose: string | null
+  tools: string[]
+  preconditions: string[]
+  procedure: string[]
+  expectedResults: string[]
+  safetyNotes: string[]
+  sourceIds: string[]
+  status: string
+}
+
+export interface Source {
+  id: string
+  documentTitle: string | null
+  publisher: string | null
+  page: string | null
+  url: string | null
+  excerpt: string | null
+}
+
 interface ApiErrorBody {
   code?: string
   message?: string
@@ -119,5 +194,18 @@ export const api = {
     get: (id: string) => request<DiagnosticSession>(`/diagnostics/${id}`),
     create: (input: DiagnosticSessionInput) =>
       request<DiagnosticSession>('/diagnostics', { method: 'POST', body: JSON.stringify(input) }),
+    listMessages: (id: string) => request<DiagnosticMessage[]>(`/diagnostics/${id}/messages`),
+    sendMessage: (id: string, content: string) =>
+      request<DiagnosticMessage[]>(`/diagnostics/${id}/messages`, {
+        method: 'POST',
+        body: JSON.stringify({ content }),
+      }),
+  },
+  settings: {
+    get: () => request<LlmSettings>('/settings/llm'),
+    update: (input: LlmSettingsInput) =>
+      request<LlmSettings>('/settings/llm', { method: 'PUT', body: JSON.stringify(input) }),
+    test: () => request<TestConnectionResult>('/settings/llm/test', { method: 'POST' }),
+    deleteKey: () => request<LlmSettings>('/settings/llm/key', { method: 'DELETE' }),
   },
 }

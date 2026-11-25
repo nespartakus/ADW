@@ -4,6 +4,7 @@ import { ComingSoonPage } from '@/components/ComingSoonPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { DiagnosticDetailPage } from '@/features/diagnostics/DiagnosticDetailPage'
 import { DiagnosticsPage } from '@/features/diagnostics/DiagnosticsPage'
+import { SettingsPage } from '@/features/settings/SettingsPage'
 import { VehiclesPage } from '@/features/vehicles/VehiclesPage'
 
 export default function App() {
@@ -18,7 +19,7 @@ export default function App() {
         <Route path="knowledge" element={<ComingSoonPage title="Biblioteca técnica" />} />
         <Route path="devices" element={<ComingSoonPage title="Dispositivos" />} />
         <Route path="reports" element={<ComingSoonPage title="Informes" />} />
-        <Route path="settings" element={<ComingSoonPage title="Configuración" />} />
+        <Route path="settings" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
     </Routes>

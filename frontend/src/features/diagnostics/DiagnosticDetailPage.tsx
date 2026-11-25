@@ -1,14 +1,32 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { api } from '@/lib/api'
+import { api, type DiagnosticMessage } from '@/lib/api'
+import { AnalysisView } from './AnalysisView'
 
 export function DiagnosticDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const queryClient = useQueryClient()
+  const [input, setInput] = useState('')
 
   const { data: session, isLoading, isError } = useQuery({
     queryKey: ['diagnostic', id],
     queryFn: () => api.diagnostics.get(id!),
     enabled: !!id,
+  })
+
+  const { data: messages = [] } = useQuery({
+    queryKey: ['messages', id],
+    queryFn: () => api.diagnostics.listMessages(id!),
+    enabled: !!id,
+  })
+
+  const sendMutation = useMutation({
+    mutationFn: (content: string) => api.diagnostics.sendMessage(id!, content),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['messages', id] })
+      setInput('')
+    },
   })
 
   if (isLoading) {
@@ -27,52 +45,81 @@ export function DiagnosticDetailPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex h-full flex-col gap-4">
       <div>
         <Link to="/diagnostics" className="text-sm text-accent hover:underline">
           ← Diagnósticos
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold">{session.title}</h1>
-        <p className="mt-1 text-sm text-fg-muted">
-          {session.vehicle.make} {session.vehicle.model} {session.vehicle.year} ·{' '}
-          {session.status === 'OPEN' ? 'Abierta' : 'Cerrada'}
+        <h1 className="mt-1 text-xl font-semibold">{session.title}</h1>
+        <p className="text-sm text-fg-muted">
+          {session.vehicle.make} {session.vehicle.model} {session.vehicle.year}
         </p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <InfoBlock label="Vehículo">
-          {session.vehicle.make} {session.vehicle.model} {session.vehicle.year}
-        </InfoBlock>
-        <InfoBlock label="Referencia del cliente">
-          {session.customerReference ?? '—'}
-        </InfoBlock>
-        <InfoBlock label="Síntoma / motivo de ingreso">
-          {session.complaint ?? '—'}
-        </InfoBlock>
-        <InfoBlock label="Condiciones de aparición">
-          {session.operatingConditions ?? '—'}
-        </InfoBlock>
-        <InfoBlock label="Iniciada">
-          {new Date(session.startedAt).toLocaleString()}
-        </InfoBlock>
-        <InfoBlock label="Cerrada">
-          {session.closedAt ? new Date(session.closedAt).toLocaleString() : '—'}
-        </InfoBlock>
+      <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-border bg-surface p-4">
+        {messages.length === 0 ? (
+          <p className="text-sm text-fg-muted">
+            Describe el síntoma para recibir un análisis estructurado con hipótesis, información
+            faltante y un plan de pruebas.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {messages.map((m) => (
+              <MessageBubble key={m.id} message={m} />
+            ))}
+          </div>
+        )}
       </div>
 
-      <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-fg-muted">
-        El espacio de trabajo de diagnóstico (conversación, DTC, hipótesis y pruebas) llega en
-        fases posteriores. No disponible todavía.
-      </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          if (input.trim()) sendMutation.mutate(input)
+        }}
+        className="flex gap-2"
+      >
+        <textarea
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          rows={2}
+          placeholder="Describe el síntoma, condiciones y datos disponibles…"
+          className="flex-1 rounded-md border border-border bg-graphite px-3 py-2 text-sm text-fg placeholder:text-fg-muted focus:border-accent focus:outline-none"
+        />
+        <button
+          type="submit"
+          disabled={sendMutation.isPending || !input.trim()}
+          className="self-end rounded-md bg-accent px-4 py-2 text-sm font-medium text-graphite hover:bg-accent-strong disabled:opacity-50"
+        >
+          {sendMutation.isPending ? 'Analizando…' : 'Enviar'}
+        </button>
+      </form>
+
+      {sendMutation.isError && (
+        <p className="text-sm text-danger">{(sendMutation.error as Error).message}</p>
+      )}
     </div>
   )
 }
 
-function InfoBlock({ label, children }: { label: string; children: React.ReactNode }) {
+function MessageBubble({ message }: { message: DiagnosticMessage }) {
+  if (message.role === 'USER') {
+    return (
+      <div className="flex justify-end">
+        <div className="max-w-[80%] rounded-lg bg-elevated px-4 py-2 text-sm">{message.content}</div>
+      </div>
+    )
+  }
+
   return (
-    <div className="rounded-lg border border-border bg-surface p-4">
-      <div className="text-xs uppercase tracking-wide text-fg-muted">{label}</div>
-      <div className="mt-1 text-sm">{children}</div>
+    <div className="flex flex-col gap-2">
+      <div className="max-w-[90%] rounded-lg border border-border bg-graphite px-4 py-3 text-sm">
+        {message.content && <p className="mb-3 font-medium">{message.content}</p>}
+        {message.structuredPayload ? (
+          <AnalysisView analysis={message.structuredPayload} />
+        ) : (
+          <p className="text-fg-muted">{message.content ?? 'Sin contenido'}</p>
+        )}
+      </div>
     </div>
   )
 }

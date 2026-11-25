@@ -17,15 +17,17 @@ Test runner: backend Maven (JUnit + Testcontainers); frontend Vitest
 
 ## Tasks
 
-- T1 — Migración V3 (llm_configuration + diagnostic_message) + entidades — S1,S4
-- T2 — SecretEncryptor AES-GCM + abstracción LlmClient + adaptador LangChain4j (OpenAI) — S1,S3
-- T3 — Settings API (GET/PUT/test/DELETE key) — S2
-- T4 — Contrato DiagnosticAnalysis (records sección 7) + validación — S5
-- T5 — AutomotiveOrchestrator (prompt + parse + validación + retry limitado) — S5
-- T6 — Endpoints de mensajes + analyze (persistencia) — S4,S6
-- T7 — Manejo de errores LLM — S7
-- T8 — Frontend: página Configuración + chat básico en el diagnóstico — S2,S6
+- [x] T1 — Migración V3 (llm_configuration + diagnostic_message) + entidades — S1,S4 — 750fa20
+- [x] T2 — SecretEncryptor AES-GCM + abstracción LlmClient + adaptador LangChain4j (OpenAI) — S1,S3 — 750fa20
+- [x] T3 — Settings API (GET/PUT/test/DELETE key) — S2 — 750fa20
+- [x] T4 — Contrato DiagnosticAnalysis (records sección 7) + validación — S5 — 750fa20
+- [x] T5 — AutomotiveOrchestrator (prompt + parse + validación + retry limitado) — S5 — 750fa20
+- [x] T6 — Endpoints de mensajes + analyze (persistencia) — S4,S6 — 750fa20
+- [x] T7 — Manejo de errores LLM (LlmException → 502/503/504) — S7 — 750fa20
+- [x] T8 — Frontend: página Configuración + chat básico en el diagnóstico — S2,S6 — (commit frontend)
 
 ## Log
 
 - L1 (2026-11-25): "Manito, síguele, continúa con el desarrollo" — se continúa Fase 2 sin especificar proveedor; se integra OpenAI por defecto (candidato #1 del spec, y OpenAI-compatible cubre Ollama vía baseUrl). API LangChain4j 1.24 confirmado: chat no-streaming para salida estructurada.
+- L2 (2026-11-25): Gotchas LangChain4j 1.24: los mensajes están en `dev.langchain4j.data.message` (no `model.chat.message`); `ResponseFormatType` es enum separado (no `ResponseFormat.Type`). Backend Fase 2 completo: 9 tests verdes (cifrado, settings sin exponer secreto, orquestador parse/validación/reintento). Streaming SSE diferido: JSON schema no aplica en modo streaming con OpenAI; la salida estructurada validada es lo crítico para la aceptación.
+
