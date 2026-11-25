@@ -1,7 +1,9 @@
 package com.adw.diagnostic;
 
+import com.adw.diagnostic.dto.DiagnosticMessageResponse;
 import com.adw.diagnostic.dto.DiagnosticSessionRequest;
 import com.adw.diagnostic.dto.DiagnosticSessionResponse;
+import com.adw.diagnostic.dto.SendMessageRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,25 +21,41 @@ import java.util.UUID;
 @RequestMapping("/api/v1/diagnostics")
 public class DiagnosticSessionController {
 
-    private final DiagnosticSessionService service;
+    private final DiagnosticSessionService sessionService;
+    private final DiagnosticMessageService messageService;
 
-    public DiagnosticSessionController(DiagnosticSessionService service) {
-        this.service = service;
+    public DiagnosticSessionController(
+            DiagnosticSessionService sessionService,
+            DiagnosticMessageService messageService) {
+        this.sessionService = sessionService;
+        this.messageService = messageService;
     }
 
     @GetMapping
     public List<DiagnosticSessionResponse> list() {
-        return service.list();
+        return sessionService.list();
     }
 
     @GetMapping("/{id}")
     public DiagnosticSessionResponse get(@PathVariable UUID id) {
-        return service.get(id);
+        return sessionService.get(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public DiagnosticSessionResponse create(@Valid @RequestBody DiagnosticSessionRequest request) {
-        return service.create(request);
+        return sessionService.create(request);
+    }
+
+    @GetMapping("/{id}/messages")
+    public List<DiagnosticMessageResponse> listMessages(@PathVariable UUID id) {
+        return messageService.list(id);
+    }
+
+    @PostMapping("/{id}/messages")
+    public List<DiagnosticMessageResponse> sendMessage(
+            @PathVariable UUID id,
+            @Valid @RequestBody SendMessageRequest request) {
+        return messageService.send(id, request.content());
     }
 }
